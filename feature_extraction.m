@@ -2,6 +2,7 @@ function features = feature_extraction(X, num_features, fs)
     features = zeros(num_features, size(X, 3), size(X, 2));
     
     for  i = 1:size(X, 3)
+        % Mean Freq
         n_f = 1;
         features(n_f,i,:) = meanfreq(X(:,:,i),fs);
 
@@ -30,7 +31,7 @@ function features = feature_extraction(X, num_features, fs)
 
         % Power of Gamma Band
         n_f = 7;
-        freq_band = [30, 50];
+        freq_band = [30, 40];
         features(n_f,i,:) = bandpower(X(:,:,i), fs, freq_band);
 
         % Entropy
