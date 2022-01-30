@@ -48,11 +48,11 @@ for itter = 1:num_itters
 end
 
 max(FS_ND)
-
-
-%%
-samples_feature_indexes = [18,12,16,2,35,5,28,7,20,14,25,11];
-selected_samples_memory(itter, :) = samples_feature_indexes;
-sigg_cls1 = selected_features(samples_feature_indexes, cls1_indexes);
-sigg_cls2 = selected_features(samples_feature_indexes, cls2_indexes);
-fisher_score_ND(sigg_cls1, sigg_cls2, selected_features(samples_feature_indexes, :))
+% 
+% 
+% %%
+% samples_feature_indexes = [18,12,16,2,35,5,28,7,20,14,25,11];
+% selected_samples_memory(itter, :) = samples_feature_indexes;
+% sigg_cls1 = selected_features(samples_feature_indexes, cls1_indexes);
+% sigg_cls2 = selected_features(samples_feature_indexes, cls2_indexes);
+% fisher_score_ND(sigg_cls1, sigg_cls2, selected_features(samples_feature_indexes, :))
