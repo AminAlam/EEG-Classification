@@ -1,8 +1,8 @@
 function J = fisher_score_ND(sigg_cls1, sigg_cls2, all_sub)
 
-    mu_0 = mean(all_sub')'
-    mu_1 = mean(sigg_cls1')'
-    mu_2 = mean(sigg_cls2')'
+    mu_0 = mean(all_sub')';
+    mu_1 = mean(sigg_cls1')';
+    mu_2 = mean(sigg_cls2')';
     S1 = 0;
     S2 = 0;
 
