@@ -98,4 +98,3 @@ def call_from_matlab(datas_train, datas_val, labels_train, labels_val, input_siz
     model, loss_train, loss_val, acc_train, acc_val = train(datas_train,labels_train, model, criterion, optimizer, datas_val, labels_val, device='cpu')
 
     return loss_train, loss_val, acc_train, acc_val
-    
