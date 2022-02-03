@@ -1,4 +1,4 @@
-function [loss_train, loss_val, acc_train, acc_val] = MLP(best_features, K_folds, lr, num_epochs, y_train)
+function [mean_loss_train, mean_loss_val, mean_acc_train, mean_acc_val] = MLP(best_features, K_folds, lr, num_epochs, y_train)
     
     k = size(best_features, 1);
     num_datas_in_fold = floor(size(best_features,2)/K_folds);
