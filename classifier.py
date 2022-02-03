@@ -6,11 +6,11 @@ class MLP(torch.nn.Module):
 
     def __init__(self, input_size, ouput_size=1) -> None:
         super(MLP, self).__init__()
-        self.layer_1 = torch.nn.Linear(input_size, input_size*8)
-        self.layer_2 = torch.nn.Linear(input_size*8, input_size*4)
+        self.layer_1 = torch.nn.Linear(input_size, input_size*4)
+        self.layer_2 = torch.nn.Linear(input_size*4, input_size*4)
         self.layer_out = torch.nn.Linear(input_size*4, ouput_size) 
         self.dropout = torch.nn.Dropout(0.5)
-        self.relu = torch.nn.Sigmoid()
+        self.relu = torch.nn.ReLU()
         
     def forward(self, inputs):
         x = self.relu(self.layer_1(inputs))
@@ -87,7 +87,7 @@ def call_from_matlab(datas_train, datas_val, labels_train, labels_val, input_siz
     device = init_device()
     model = MLP(input_size, ouput_size).to(device)
     criterion = torch.nn.BCEWithLogitsLoss().to(device)
-    optimizer = torch.optim.Adam(model.parameters(), lr = lr)
+    optimizer = torch.optim.SGD(model.parameters(), lr = lr, momentum=0.5)
 
     datas_train = torch.tensor(datas_train).float()
     datas_val = torch.tensor(datas_val).float()
