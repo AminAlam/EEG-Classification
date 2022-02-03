@@ -2,7 +2,10 @@
 clc
 clear
 clear class
+close all
 load Datas/All_data.mat;
+
+save_figures = 1;
 %% changin the python enviornment - Matlab 2019 works with python 3.7
 env_path = '/Users/mohammadaminalamalhod/anaconda3/envs/Matlab/bin/python3.7';
 pyenv('Version',env_path);
@@ -12,69 +15,89 @@ fs = 100;
 X = x_train;
 [~, cls1_indexes] = find(y_train==0);
 [~, cls2_indexes] = find(y_train==1);
-%% extending trials using window with overlap
+%% Plot avg of all trials and all channels in time and freq domain
 clc
-X_cls_1 = permute(X(:, :, cls1_indexes), [2,1,3]);
-X_cls_2 = permute(X(:, :, cls2_indexes), [2,1,3]);
-X_cls_1 = reshape(X_cls_1, [28, 7950]);
-X_cls_2 = reshape(X_cls_2, [28, 7850]);
+close all
 
-n_overlap = 50-25;
+plot_time_freq(X, cls1_indexes, cls2_indexes, fs)
+% if save_figures
+%     set(gcf,'PaperPositionMode','auto')
+%     print("Report/images/amp",'-dpng','-r0')
+% end
 
-X_overlap_cls_1 = zeros(size(X, 1), size(X, 2),  (size(X_cls_1, 2)-50)/n_overlap);
-X_overlap_cls_2 = zeros(size(X, 1), size(X, 2),  (size(X_cls_2, 2)-50)/n_overlap);
-y_train_overlap = [];
-row_counter = 1;
-for i = 1:n_overlap:size(X_cls_1, 2)-50
-    X_overlap_cls_1(:,:, row_counter) = X_cls_1(:,i:i+49)';
-    row_counter = row_counter+1;
-    y_train_overlap = [y_train_overlap, 0];
+% if save_figures
+%     set(gcf,'PaperPositionMode','auto')
+%     print("Report/images/stft",'-dpng','-r0')
+% end
+%% CSP
+clc
+close all
+
+X = x_train;
+C_x1 = 0;
+for i = cls1_indexes
+    C_x1 = C_x1+ X(:,:,i)'*X(:,:,i);
 end
 
-row_counter = 1;
-for i = 1:n_overlap:size(X_cls_2, 2)-50
-    X_overlap_cls_2(:,:, row_counter) = X_cls_2(:,i:i+49)';
-    row_counter = row_counter+1;
-    y_train_overlap = [y_train_overlap, 1];
+C_x2 = 0;
+for i = cls2_indexes
+    C_x2 = C_x2+ X(:,:,i)'*X(:,:,i);
 end
 
-X_overlap = cat(3, X_overlap_cls_1, X_overlap_cls_2);
 
-% shuffling classes
+[V,D] = eig(C_x1, C_x2);
+D = diag(D);
+[D, indx] = sort(D, 'descend');
+V = (V(:,indx));
+W1 = V(:,1);
+Wend = V(:,end);
+X_filt = X;
 
-indexes = randperm(size(X_overlap, 3));
-X_overlap = X_overlap(:, :, indexes);
-y_train_overlap = y_train_overlap(:, indexes);
+for i = cls1_indexes
+    X_filt(:,:,i) = (V'*X(:,:,i)')';
+end
 
-X = X_overlap;
-y_train = y_train_overlap;
+for i = cls2_indexes
+    X_filt(:,:,i) = (V'*X(:,:,i)')';
+end
+
+plot_time_freq(X_filt, cls1_indexes, cls2_indexes, fs)
+X = X_filt;
 %% Feature Extraction
 clc
+close all
 [features, num_features] = feature_extraction(X, fs);
+%% plot features
+f_index = 12;
+scatter(mean(features(f_index,cls1_indexes,:), 3), cls1_indexes*0, 'r')
+hold on
+scatter(mean(features(f_index,cls2_indexes,:), 3), cls2_indexes*0+1, 'b')
 %% Calculating the 2D Fisher Score
 clc
 selected_features = fisher_2D_calculator(num_features, features, cls1_indexes, cls2_indexes);
 %% Calculating the ND Fisher Score
 clc
 k = 16;
-num_itters = 400;
+num_itters = 800;
 best_features = fisher_ND_calculator(k, num_itters, selected_features, cls1_indexes, cls2_indexes);
-%% MLP 
+%% MLP
 clc
 close all
 K_folds = 5;
-lr = 0.001;
-num_epochs = 400;
+lr = 0.005;
+num_epochs = 50;
 
 [loss_train, loss_val, acc_train, acc_val] = MLP(best_features, K_folds, lr, num_epochs, y_train);
 
+
+subplot(2,1,1)
 plot(loss_train, 'LineWidth', 2)
 hold on
 plot(loss_val, 'LineWidth', 2)
 legend('train', 'val')
 title('Loss')
 
-figure
+subplot(2,1,2)
 plot(acc_train, 'LineWidth', 2)
 hold on
 plot(acc_val, 'LineWidth', 2)
@@ -97,12 +120,14 @@ disp(sprintf("Validation Acc %f ",mean(acc_val)))
 clc
 close all
 
-num_epochs = 400;
-num_fishes = 20;
-time = 20;
-alpha = 0.2;
+lr = 0.005;
+num_epochs = 50;
+num_fishes = 10;
+time = 40;
+a = 1;
+c = 0.4;
 
-k = 16;
+k = size(selected_features, 1); %16;
 v = zeros(num_fishes, k);
 x = zeros(num_fishes, k);
 
@@ -111,10 +136,13 @@ x_global = zeros(1,k);
 q = -inf;
 
 for f = 1:num_fishes
-    x(f,:) = randsample(1:size(selected_features, 1), k);
+    x(f,:) = randsample(0:size(selected_features, 1), k);
     x_local(f,:) = x(f,:);
     
-    [~, ~, ~, acc_val_x] = MLP(selected_features(x(f,:), :), K_folds, lr, num_epochs, y_train);
+    [~, col] = find(x(f,:)~=0);
+     x_removed_zeros = x(f, col);
+    
+    [~, ~, ~, acc_val_x] = MLP(selected_features(x_removed_zeros, :), K_folds, lr, num_epochs, y_train);
     acc_val_x = acc_val_x(end);
     
     if acc_val_x > q
@@ -128,9 +156,14 @@ end
 for t = 1:time
     tic
     for f = 1:num_fishes
-        [~, ~, ~, acc_val_x] = MLP(selected_features(x(f,:), :), K_folds, lr, num_epochs, y_train);
+        [~, col] = find(x(f,:)~=0);
+         x_removed_zeros = x(f, col);
+        [~, ~, ~, acc_val_x] = MLP(selected_features(x_removed_zeros, :), K_folds, lr, num_epochs, y_train);
         acc_val_x = acc_val_x(end);
-        [~, ~, ~, acc_val_x_local] = MLP(selected_features(x_local(f,:), :), K_folds, lr, num_epochs, y_train);
+        
+        [~, col] = find(x_local(f,:)~=0);
+        x_local_removed_zeros = x_local(f, col);
+        [~, ~, ~, acc_val_x_local] = MLP(selected_features(x_local_removed_zeros, :), K_folds, lr, num_epochs, y_train);
         acc_val_x_local = acc_val_x_local(end);
         if acc_val_x >= acc_val_x_local
             x_local(f,:) = x(f,:);
@@ -142,10 +175,9 @@ for t = 1:time
     end
 
     for f = 1:num_fishes
-        
-        alpha = alpha - 0.001;
-        B1 = rand()*alpha;
-        B2 = rand()*alpha;
+        B1 = rand()*a;
+        B2 = rand()*a;
+        alpha = a/(t^c);
         
         v(f, :) = alpha*v(f, :)+B1*(x_local(f,:)-x(f,:))+B2*(x_global-x(f,:));
         x(f, :) = round(x(f, :) + v(f, :))';
@@ -153,15 +185,15 @@ for t = 1:time
         % correct bad x values which cross the limits
         [~, col] = find(x(f, :)>size(selected_features, 1));
         if ~isempty(col)
-            x(f, col) = size(selected_features, 1);
+            x(f, col) = mod(x(f, col), size(selected_features, 1));
         end
 
-        [~, col] = find(x(f, :)<1);
-        
+        [~, col] = find(x(f, :)<0);
         if ~isempty(col)
-            x(f, col) = 1;
+            x(f, col) =  abs(x(f, col));
         end
     end
+    
     q
     toc
 end
@@ -169,23 +201,6 @@ end
 %% Genetric Algorithm
 clc
 close all
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
