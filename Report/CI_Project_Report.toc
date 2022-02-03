@@ -1,0 +1,16 @@
+\@ifundefined {etoctocstyle}{\let \etoc@startlocaltoc \@gobble \let \etoc@settocdepth \@gobble \let \etoc@depthtag \@gobble \let \etoc@setlocaltop \@gobble }{}
+\contentsline {section}{\numberline {1}Git and Project Dependencies}{1}{section.0.1}%
+\contentsline {subsection}{\numberline {1.1}Git}{1}{subsection.0.1.1}%
+\contentsline {subsection}{\numberline {1.2}Project Dependencies}{1}{subsection.0.1.2}%
+\contentsline {section}{\numberline {2}Datas}{2}{section.0.2}%
+\contentsline {section}{\numberline {3}Features}{3}{section.0.3}%
+\contentsline {subsection}{\numberline {3.1}Mean Frequency}{3}{subsection.0.3.1}%
+\contentsline {subsection}{\numberline {3.2}Median Frequency}{3}{subsection.0.3.2}%
+\contentsline {subsection}{\numberline {3.3}Total Power of Channels}{3}{subsection.0.3.3}%
+\contentsline {subsection}{\numberline {3.4}Powers of Delta, Theta, Alpha, and Beta Frequency Bands }{3}{subsection.0.3.4}%
+\contentsline {subsection}{\numberline {3.5}Entropy}{3}{subsection.0.3.5}%
+\contentsline {subsection}{\numberline {3.6}Lyapunov Exponent}{3}{subsection.0.3.6}%
+\contentsline {subsection}{\numberline {3.7}Average of Differentiate of Trials}{3}{subsection.0.3.7}%
+\contentsline {subsection}{\numberline {3.8}Skewness}{3}{subsection.0.3.8}%
+\contentsline {subsection}{\numberline {3.9}Kurtosis}{3}{subsection.0.3.9}%
+\contentsline {section}{\numberline {4}Fisher Score}{4}{section.0.4}%
