@@ -61,21 +61,64 @@ disp(sprintf("Validation Acc %f ",mean(acc_val)))
 clc
 close all
 
-num_fishes = 100;
-time = 100;
+num_fishes = 10;
+time = 20;
+alpha = 0.1;
 
-v = zeros(num_fishes, time, k);
-x = zeros(num_fishes, time, k);
+k = 16;
+v = zeros(num_fishes, k);
+x = zeros(num_fishes, k);
 
 x_local = zeros(num_fishes, k);
 x_global = zeros(1,k);
+q = -inf;
 
-alpha = 0.1;
+for f = 1:num_fishes
+    x(f,:) = randsample(1:size(selected_features, 1), k);
+    x_local(f,:) = x(f,:);
+    
+    [~, ~, ~, acc_val_x] = MLP(selected_features(x(f,:), :), K_folds, lr, num_epochs, y_train);
+    acc_val_x = acc_val_x(end);
+    
+    if acc_val_x > q
+        x_global = x(f,:);
+        q = acc_val_x;
+    end
+    
+end
+
 
 for t = 1:time
     for f = 1:num_fishes
+        [~, ~, ~, acc_val_x] = MLP(selected_features(x(f,:), :), K_folds, lr, num_epochs, y_train);
+        acc_val_x = acc_val_x(end);
+        [~, ~, ~, acc_val_x_local] = MLP(selected_features(x_local(f,:), :), K_folds, lr, num_epochs, y_train);
+        acc_val_x_local = acc_val_x_local(end);
+        if acc_val_x >= acc_val_x_local
+            x_local(f,:) = x(f,:);
+        end
+        if acc_val_x >= q
+            q = acc_val_x;
+            x_global = x(f,:);
+        end
+    end
+    for f = 1:num_fishes
         B1 = rand();
         B2 = rand();
+        alpha = alpha - 0.0002;
+        v(f, :) = alpha*v(f, :)+B1*(x_local(f,:)-x(f,:))+B2*(x_global-x(f,:));
+        x(f, :) = round(x(f, :) + v(f, :));
+    end
+    
+    q
+end
+%%
+
+
+for t = 1:time-1
+    for f = 1:num_fishes
+        v(f, t+1, :) = alpha*squeeze(v(f, t, :))'+B1*(x_local(f,:)-squeeze(x(f, t, :))')+B2*(x_global-squeeze(x(f, t, :))');
+        x(f, t+1, :) = x(f, t, :)+v(f, t, :);
         
         
         
