@@ -2,6 +2,9 @@ clc
 clear
 clear class
 load Datas/All_data.mat;
+%% changin the python enviornment - Matlab 2019 works with python 3.7
+env_path = '/Users/mohammadaminalamalhod/anaconda3/envs/Matlab/bin/python3.7';
+pyenv('Version',env_path);
 %% Configs
 clc
 fs = 100;
@@ -35,7 +38,7 @@ selected_features = cell2mat(arrayfun(@(x) features(row(x), :, col(x)), 1:length
 
 %% Calculating the ND Fisher Score
 clc
-k = 15;
+for k = 16
 num_itters = 100;
 selected_samples_memory = zeros(num_itters, k);
 FS_ND = zeros(1,100);
@@ -46,72 +49,81 @@ for itter = 1:num_itters
    sigg_cls2 = selected_features(samples_feature_indexes, cls2_indexes);
    FS_ND(1, itter) = fisher_score_ND(sigg_cls1, sigg_cls2, selected_features(samples_feature_indexes, :));
 end
-
+max(FS_ND)
 [~, col] = find(FS_ND == max(FS_ND));
 best_features_indexes = selected_samples_memory(col(1), :);
 best_features = selected_features(best_features_indexes,:);
-%% changin the python enviornment - Matlab 2019 works with python 3.7
-datas
-env_path = '/Users/mohammadaminalamalhod/anaconda3/envs/Matlab/bin/python3.7';
-pyenv('Version',env_path)
+end
 %% MLP 
 clc
 close all
-K_folds = 6;
+K_folds = 5;
+lr = 0.01;
+num_epochs = 30;
+
 
 num_datas_in_fold = floor(size(best_features,2)/K_folds);
+num_all_datas = size(best_features,2);
+loss_train = [];
+loss_val = [];
+acc_train = [];
+acc_val = [];
 
 for f = 0:K_folds-1
-    f
-    if f ==0
+    
+    if f == 0
         folds_train_1 = [];
-        folds_val = best_features(:,f*num_datas_in_fold+1:(f+1)*num_datas_in_fold);
-        folds_train_2 = best_features(:,(f+1)*num_datas_in_fold+1:end);
+        folds_val = f*num_datas_in_fold+1:(f+1)*num_datas_in_fold;
+        folds_train_2 = (f+1)*num_datas_in_fold+1:num_all_datas;
     elseif f == K_folds-1
-        folds_train_1 = best_features(:,1:f*num_datas_in_fold);
-        folds_val = best_features(:,f*num_datas_in_fold+1:(f+1)*num_datas_in_fold);
+        folds_train_1 = 1:f*num_datas_in_fold;
+        folds_val = f*num_datas_in_fold+1:(f+1)*num_datas_in_fold;
         folds_train_2 = [];
     else
-        folds_train_1 = best_features(:,1:f*num_datas_in_fold);
-        folds_val = best_features(:,f*num_datas_in_fold+1:(f+1)*num_datas_in_fold);
-        folds_train_2 = best_features(:,(f+1)*num_datas_in_fold+1:end);
+        folds_train_1 = 1:f*num_datas_in_fold;
+        folds_val = f*num_datas_in_fold+1:(f+1)*num_datas_in_fold;
+        folds_train_2 = (f+1)*num_datas_in_fold+1:num_all_datas;
     end
+    folds_train = [folds_train_1, folds_train_2];
     
-%     
-%     datas_train = py.numpy.array(best_features(:,1:300)');
-%     datas_val = py.numpy.array(best_features(:,301:end)');
-%     labels_train = py.numpy.array(y_train(:,1:300)');
-%     labels_val = py.numpy.array(y_train(:,301:end)');
-% 
-%     kwa = pyargs('datas_train', datas_train, ...
-%         'datas_val', datas_val, ...
-%         'labels_train', labels_train, ...
-%         'labels_val', labels_val, ...
-%         'input_size', int32(k), ...
-%         'ouput_size', int32(1));
-% 
-%     mod = py.importlib.import_module('classifier');
-%     py.importlib.reload(mod);
-%     out = mod.call_from_matlab(kwa);
-% 
-%     loss_train = str2num(char(out.cell{1}));
-%     loss_val = str2num(char(out.cell{2}));
-%     acc_train = str2num(char(out.cell{3}));
-%     acc_val = str2num(char(out.cell{4}));
+    
+    datas_train = py.numpy.array(best_features(:,folds_train)');
+    datas_val = py.numpy.array(best_features(:,folds_val)');
+    labels_train = py.numpy.array(y_train(:,folds_train)');
+    labels_val = py.numpy.array(y_train(:,folds_val)');
+
+    kwa = pyargs('datas_train', datas_train, ...
+        'datas_val', datas_val, ...
+        'labels_train', labels_train, ...
+        'labels_val', labels_val, ...
+        'input_size', int32(k), ...
+        'ouput_size', int32(1), ...
+        'lr', double(lr), ...
+        'num_epochs', int32(num_epochs));
+
+    mod = py.importlib.import_module('classifier');
+    py.importlib.reload(mod);
+    out = mod.call_from_matlab(kwa);
+
+    loss_train = [loss_train; str2num(char(out.cell{1}))];
+    loss_val = [loss_val; str2num(char(out.cell{2}))];
+    acc_train = [acc_train; str2num(char(out.cell{3}))];
+    acc_val = [acc_val; str2num(char(out.cell{4}))];
 
 end
 
-plot(loss_train)
+plot(mean(loss_train, 1), 'LineWidth', 2)
 hold on
-plot(loss_val)
+plot(mean(loss_val, 1), 'LineWidth', 2)
 legend('train', 'val')
 figure
-plot(acc_train)
+plot(mean(acc_train,1), 'LineWidth', 2)
 hold on
-plot(acc_val)
+plot(mean(acc_val,1), 'LineWidth', 2)
 ylim([0,100])
 legend('train', 'val')
 
+%% RFB
 
 
 

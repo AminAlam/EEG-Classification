@@ -6,17 +6,17 @@ class MLP(torch.nn.Module):
 
     def __init__(self, input_size, ouput_size=1) -> None:
         super(MLP, self).__init__()
-        self.layer_1 = torch.nn.Linear(input_size, 64) 
-        self.layer_2 = torch.nn.Linear(64, 32)
-        self.layer_3 = torch.nn.Linear(32, 16)
-        self.layer_out = torch.nn.Linear(16, ouput_size) 
-        
-        self.relu = torch.nn.ReLU()
+        self.layer_1 = torch.nn.Linear(input_size, input_size*8)
+        self.layer_2 = torch.nn.Linear(input_size*8, input_size*4)
+        self.layer_out = torch.nn.Linear(input_size*4, ouput_size) 
+        self.dropout = torch.nn.Dropout(0.5)
+        self.relu = torch.nn.Sigmoid()
         
     def forward(self, inputs):
         x = self.relu(self.layer_1(inputs))
+        x = self.dropout(x)
         x = self.relu(self.layer_2(x))
-        x = self.relu(self.layer_3(x))
+        x = self.dropout(x)
         x = self.layer_out(x)
         return x
 
@@ -27,19 +27,18 @@ def init_device():
     return device
 
 
-def train(datas,labels, model, criterion, optimizer, datas_val, labels_val, device='cpu'):
+def train(datas,labels, model, criterion, optimizer, datas_val, labels_val, num_epochs, device='cpu'):
     loss_train = []
     loss_val = []
     acc_train = []
     acc_val = []
 
-    epoch_num = 50
     datas = datas.to(device)
     labels = labels.to(device)
     labels = torch.unsqueeze(labels, 1)
 
     model.train()
-    for epoch in range(epoch_num):
+    for epoch in range(num_epochs):
         optimizer.zero_grad()
         predicted = model(datas)
 
@@ -83,18 +82,18 @@ def validation(datas,labels, model, criterion, device):
     return loss.item(), acc
 
 
-def call_from_matlab(datas_train, datas_val, labels_train, labels_val, input_size, ouput_size):
+def call_from_matlab(datas_train, datas_val, labels_train, labels_val, input_size, ouput_size, lr=0.01, num_epochs=10):
 
     device = init_device()
     model = MLP(input_size, ouput_size).to(device)
     criterion = torch.nn.BCEWithLogitsLoss().to(device)
-    optimizer = torch.optim.Adam(model.parameters(), lr = 0.01)
+    optimizer = torch.optim.Adam(model.parameters(), lr = lr)
 
     datas_train = torch.tensor(datas_train).float()
     datas_val = torch.tensor(datas_val).float()
     labels_train = torch.tensor(labels_train).float()
     labels_val = torch.tensor(labels_val).float()
 
-    model, loss_train, loss_val, acc_train, acc_val = train(datas_train,labels_train, model, criterion, optimizer, datas_val, labels_val, device='cpu')
+    model, loss_train, loss_val, acc_train, acc_val = train(datas_train,labels_train, model, criterion, optimizer, datas_val, labels_val, num_epochs, device='cpu')
 
     return loss_train, loss_val, acc_train, acc_val
