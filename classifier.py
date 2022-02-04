@@ -3,16 +3,22 @@ class MLP(torch.nn.Module):
 
     def __init__(self, input_size, ouput_size=1) -> None:
         super(MLP, self).__init__()
-        self.layer_1 = torch.nn.Linear(input_size, 4*input_size)
-        self.layer_2 = torch.nn.Linear(4*input_size, 4*input_size)
-        self.layer_out = torch.nn.Linear(4*input_size, ouput_size)
-        self.dropout = torch.nn.Dropout(0.5)
+        self.layer_1 = torch.nn.Linear(input_size, 2*input_size)
+        self.layer_2 = torch.nn.Linear(2*input_size, 2*input_size)
+        self.layer_3 = torch.nn.Linear(2*input_size, input_size)
+        self.layer_4 = torch.nn.Linear(input_size, int(input_size/4))
+        self.layer_out = torch.nn.Linear(int(input_size/4), ouput_size)
+        self.dropout = torch.nn.Dropout(0.3)
         self.relu = torch.nn.Sigmoid()
         
     def forward(self, x):
         x = self.relu(self.layer_1(x))
         x = self.dropout(x)
         x = self.relu(self.layer_2(x))
+        x = self.dropout(x)
+        x = self.relu(self.layer_3(x))
+        x = self.dropout(x)
+        x = self.relu(self.layer_4(x))
         x = self.dropout(x)
         x = self.layer_out(x)
         return x
@@ -79,12 +85,21 @@ def validation(datas,labels, model, criterion, device):
     return loss.item(), acc
 
 
-def call_from_matlab(datas_train, datas_val, labels_train, labels_val, input_size, ouput_size, lr=0.01, num_epochs=10):
+def call_from_matlab(datas_train, datas_val, labels_train, labels_val, input_size, ouput_size, save_model=0, lr=0.01, num_epochs=10):
 
     device = init_device()
+    seed = 10
+    torch.manual_seed(seed)
     model = MLP(input_size, ouput_size).to(device)
     criterion = torch.nn.BCEWithLogitsLoss().to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr = lr)
+
+    if save_model:
+        checkpoint = {
+            "state_dict": model.state_dict(),
+            "optimizer": optimizer.state_dict(),
+            }
+        save_checkpoint(checkpoint, filename="Model.pth.tar")
 
     datas_train = torch.tensor(datas_train).float()
     datas_val = torch.tensor(datas_val).float()
@@ -94,3 +109,9 @@ def call_from_matlab(datas_train, datas_val, labels_train, labels_val, input_siz
     model, loss_train, loss_val, acc_train, acc_val = train(datas_train,labels_train, model, criterion, optimizer, datas_val, labels_val, num_epochs, device='cpu')
 
     return loss_train, loss_val, acc_train, acc_val
+
+
+
+def save_checkpoint(state, filename):
+    print("=> Saving checkpoint")
+    torch.save(state, filename)
