@@ -1,19 +1,16 @@
-import torch 
-import numpy as np
-import random
-
+import torch
 class MLP(torch.nn.Module):
 
     def __init__(self, input_size, ouput_size=1) -> None:
         super(MLP, self).__init__()
-        self.layer_1 = torch.nn.Linear(input_size, input_size*4)
-        self.layer_2 = torch.nn.Linear(input_size*4, input_size*4)
-        self.layer_out = torch.nn.Linear(input_size*4, ouput_size) 
+        self.layer_1 = torch.nn.Linear(input_size, 4*input_size)
+        self.layer_2 = torch.nn.Linear(4*input_size, 4*input_size)
+        self.layer_out = torch.nn.Linear(4*input_size, ouput_size)
         self.dropout = torch.nn.Dropout(0.5)
-        self.relu = torch.nn.ReLU()
+        self.relu = torch.nn.Sigmoid()
         
-    def forward(self, inputs):
-        x = self.relu(self.layer_1(inputs))
+    def forward(self, x):
+        x = self.relu(self.layer_1(x))
         x = self.dropout(x)
         x = self.relu(self.layer_2(x))
         x = self.dropout(x)
@@ -87,7 +84,7 @@ def call_from_matlab(datas_train, datas_val, labels_train, labels_val, input_siz
     device = init_device()
     model = MLP(input_size, ouput_size).to(device)
     criterion = torch.nn.BCEWithLogitsLoss().to(device)
-    optimizer = torch.optim.SGD(model.parameters(), lr = lr, momentum=0.5)
+    optimizer = torch.optim.Adam(model.parameters(), lr = lr)
 
     datas_train = torch.tensor(datas_train).float()
     datas_val = torch.tensor(datas_val).float()

@@ -1,0 +1,293 @@
+\documentclass[a4paper, openany]{book}
+\setcounter{tocdepth}{4}
+\setcounter{secnumdepth}{4}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb, amsfonts, geometry, float, listings, enumerate, multicol}
+\usepackage{multicol, float, color, colortbl}
+\usepackage{lipsum}
+\usepackage{tikz, titlesec, parskip}
+\usepackage{tikz,pgfplots, circuitikz}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{spreadtab}
+\usetikzlibrary{arrows, decorations.markings}
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows,positioning,calc}
+\usepackage{xcolor, soul} 
+
+\pgfplotsset{compat=1.5.1}
+\usepgfplotslibrary{fillbetween}
+\usepackage{caption, enumitem}
+\usepackage{bm}
+\usepackage[export]{adjustbox}
+\usepackage{mathtools}
+\tikzstyle{block} = [draw, fill=white, rectangle, 
+    minimum height=3em, minimum width=6em]
+    
+\tikzstyle{vecArrow} = [thick, decoration={markings,mark=at position
+   1 with {\arrow[semithick]{open triangle 90}}},
+   double distance=1pt, shorten >= 5.5pt,
+   preaction = {decorate},
+   postaction = {draw,line width=1pt, white,shorten >= 4.5pt}]
+   
+\tikzstyle{innerBlue} = [semithick, blue,line width=1pt, shorten >= 4.5pt]
+
+\tikzset{%
+    block/.style={draw, fill=white, rectangle, 
+            minimum height=2em, minimum width=3em},
+    input/.style={inner sep=0pt},       
+    output/.style={inner sep=0pt},      
+    sum/.style = {draw, fill=white, circle, minimum size=2mm, node distance=1.5cm, inner sep=0pt},
+    pinstyle/.style = {pin edge={to-,thin,black}}
+}
+
+
+\usepackage{etoc}
+\usepackage{relsize}
+\usepackage{systeme}
+\usepackage[pagebackref=false,colorlinks,linkcolor=blue,citecolor=magenta]{hyperref}
+\usepackage{wrapfig, blindtext}
+\titlespacing{\section}{0pt}{10pt}{0pt}
+\titlespacing{\subsection}{0pt}{10pt}{0pt}
+\titlespacing{\subsubsection}{0pt}{10pt}{0pt}
+
+\usetikzlibrary{calc,patterns,through}
+\newcommand{\arcangle}{%
+	\mathord{<\mspace{-9mu}\mathrel{)}\mspace{2mu}}%
+}
+
+
+\newcommand{\code}{\texttt} 
+\newcommand*{\plogo}{\fbox{$\mathcal{SUT}$}}
+\usepackage{listings}
+
+
+
+\renewcommand{\baselinestretch}{1.2}
+ \geometry{
+ a4paper,
+ total={170mm,257mm},
+ left=20mm,
+ top=20mm,
+ }
+ \usepackage{multicol}
+\usepackage{color}
+\usepackage{transparent}
+\setlength{\columnseprule}{1pt}
+\def\columnseprulecolor{\color{blue}}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+
+
+
+
+\makeatletter
+\renewcommand{\thesection}{%
+  \ifnum\c@chapter<1 \@arabic\c@section
+  \else \thechapter.\@arabic\c@section
+  \fi
+}
+\makeatother
+
+
+\usepackage{eso-pic}
+               \newcommand\BackgroundIm{
+               \put(0,0){
+               \parbox[b][\paperheight]{\paperwidth}{%
+               \vfill
+               \centering
+               {\transparent{0.3}
+               \includegraphics[height=\paperheight,width=\paperwidth,
+               keepaspectratio]{images/background.png}%
+               }
+               \vfill
+               }}}
+
+
+\begin{document}
+ \AddToShipoutPicture*{\BackgroundIm}
+
+\begin{titlepage} % Suppresses displaying the page number on the title page and the subsequent page counts as page 1
+	
+	\raggedleft % Right align the title page
+	\rule{1pt}{\textheight} % Vertical line
+	\hspace{0.05\textwidth} % Whitespace between the vertical line and title page text
+	\parbox[b]{0.75\textwidth}{ % Paragraph box for holding the title page text, adjust the width to move the title page left or right on the page
+		
+		{\Huge\bfseries CI Course Project}\\[2\baselineskip] % Title
+		{\large\textit{EEG Signal Classification}}\\[4\baselineskip] % Subtitle or further description
+		{\Large\textsc{Mohammad Amin Alamalhoda}} \\ % Author name, lower case for consistent small caps
+		
+		\vspace{0.5\textheight} % Whitespace between the title block and the publisher
+		
+		{\noindent Sharif University of Technology~~\plogo}\\[\baselineskip] % Publisher and logo
+		}
+
+\end{titlepage}
+
+\pagenumbering{roman}
+
+
+
+{
+  \hypersetup{linkcolor=black}
+  \tableofcontents
+    \listoffigures
+  \listoftables
+}
+
+
+
+\fancyhf{}
+
+\fancyhead[R]{\includegraphics[width=0.05\textwidth]{Shariflogo.png} }
+\fancyhead[L]{MohammadAmin\\ Alamalhoda}
+\cfoot{(\space \space \space \space \textbf{\thepage}  \space \space \space)}
+
+\renewcommand{\headrulewidth}{1pt}
+\renewcommand{\footrulewidth}{1pt}
+
+
+\newpage  
+\mainmatter
+\pagenumbering{arabic}
+
+\section{Git and Project Dependencies}
+
+\vspace{0.3cm}
+\subsection{Git}
+	\vspace{0.3cm}
+
+This Project is open source and is published on Github. You can watch it using \href{https://github.com/MohammadAminAlamalhoda/EEG-Classification}{this link}.
+
+You can use the following bash command for cloning this project:
+
+\begin{lstlisting}[language=bash]
+  $ git clone https://github.com/MohammadAminAlamalhoda/EEG-Classification
+    \end{lstlisting}
+  
+If you don't have \code{git} installed on your device, you can use the following bash command:
+\begin{itemize}
+\item Linux
+\begin{lstlisting}[language=bash]
+  $ sudo apt-get install git
+  \end{lstlisting}
+  
+\item MacOS
+
+MacOS already have git installed, check its version using bash command below:
+
+\begin{lstlisting}[language=bash]
+  $ git --version
+  \end{lstlisting}
+If you uninstalled it, you can install it using \code{brew}:
+\begin{lstlisting}[language=bash]
+  $ brew install git
+  \end{lstlisting}
+\item Windows
+
+You can download source code of git and make-install it using \href{https://git-scm.com/download/win}{this link}.
+\end{itemize}
+
+
+
+\subsection{Project Dependencies}
+	\vspace{0.3cm}
+
+This project needs the following stuff in order to be compiled successfully.
+
+\begin{itemize}
+\item  Python 3.7/3.8/3.9 Kernel
+\item Matlab
+\item PyTorch - Python Lib
+
+\end{itemize}
+
+You can install the required python dependencies by running:
+
+\begin{lstlisting}[language=bash]
+  $ pip install -r requirements.txt
+  \end{lstlisting}
+
+\newpage
+
+
+	
+\section{Datas}
+	\vspace{0.3cm}
+	
+I loaded the datas and plotted the amplitude and STFT of average of all the channels and trials. You can see them in Figure \ref{fig:amp_stft}.
+
+
+\begin{figure}[ht]
+  \centering
+  \begin{subfigure}[b]{0.7\linewidth}
+    \includegraphics[width=\linewidth]{images/amp.png}
+    \caption{Amplitude of Average of all Trials and all Channels}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.7\linewidth}
+    \includegraphics[width=\linewidth]{images/stft.png}
+    \caption{STFT of Average of all Trials and all Channels}
+  \end{subfigure}
+  \caption{Amplitude and STFT of Average of all Trials and all Channels}
+  \label{fig:amp_stft}
+\end{figure}
+
+I plotted these figures to first know more about the datas. Some times there is a very bold difference in FFT or amplitude of the signals which can be a good feature.
+
+
+
+	\newpage
+
+
+\section{Features}
+	\vspace{0.3cm}
+
+
+
+I Extracted the following features:
+
+\subsection{Mean Frequency}
+
+
+\subsection{Median Frequency}
+
+
+\subsection{Total Power of Channels}
+
+\subsection{Powers of Delta, Theta, Alpha, and Beta Frequency Bands }
+
+\subsection{Entropy}
+
+\subsection{Lyapunov Exponent}
+
+\subsection{Average of Differentiate of Trials}
+
+
+\subsection{Skewness}
+
+\subsection{Kurtosis}
+
+\newpage
+
+\section{Fisher Score}
+	\vspace{0.3cm}
+	
+Using fisher score, I selected good features for further steps. By calculating  fisher score of all the features, I removed the features which their fisher score was less than $2\times Avg(all\;of\;the\;fisher\;scores)$. Then using a greedy search, I selected 16 features which has the biggest ND fisher score. Using these 16 features, I performed classification using MLPs and RBFs.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\end{document}
