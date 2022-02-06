@@ -1,4 +1,4 @@
-function selected_features = fisher_2D_calculator(num_features, features, cls1_indexes, cls2_indexes)
+function [selected_features, row, col] = fisher_2D_calculator(num_features, features, cls1_indexes, cls2_indexes)
     FS = zeros(num_features, size(features,3));
     for ch = 1:size(features,3)
         for f = 1:num_features
@@ -9,8 +9,7 @@ function selected_features = fisher_2D_calculator(num_features, features, cls1_i
     end
 
     mean_fisher = mean(FS, 'all');
-    var_fisher = var(FS, 0 , 'all');
-    thresh = 2*mean_fisher;
+    thresh = mean_fisher;
     [row, col] = find(FS>thresh);
     selected_features = zeros(length(row), size(features,2));
     for i = 1:length(row)
