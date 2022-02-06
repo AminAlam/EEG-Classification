@@ -13,4 +13,6 @@
 \contentsline {subsection}{\numberline {3.7}Average of Differentiate of Trials}{3}{subsection.0.3.7}%
 \contentsline {subsection}{\numberline {3.8}Skewness}{3}{subsection.0.3.8}%
 \contentsline {subsection}{\numberline {3.9}Kurtosis}{3}{subsection.0.3.9}%
+\contentsline {subsection}{\numberline {3.10}Phase of the coefficients of the FFT}{3}{subsection.0.3.10}%
 \contentsline {section}{\numberline {4}Fisher Score}{4}{section.0.4}%
+\contentsline {section}{\numberline {5}Processing the Datas}{4}{section.0.5}%
