@@ -269,6 +269,8 @@ I Extracted the following features:
 
 \subsection{Kurtosis}
 
+\subsection{Phase of the coefficients of the FFT}
+
 \newpage
 
 \section{Fisher Score}
@@ -277,11 +279,36 @@ I Extracted the following features:
 Using fisher score, I selected good features for further steps. By calculating  fisher score of all the features, I removed the features which their fisher score was less than $2\times Avg(all\;of\;the\;fisher\;scores)$. Then using a greedy search, I selected 16 features which has the biggest ND fisher score. Using these 16 features, I performed classification using MLPs and RBFs.
 
 
+\section{Processing the Datas}
+	\vspace{0.3cm}
 
 
+I used CSP to maximize variance between the classes.
 
 
+\begin{figure}[ht]
+  \centering
+  \begin{subfigure}[b]{0.45\linewidth}
+    \includegraphics[width=\linewidth]{images/amp.png}
+    \caption{Before CSP}
+  \end{subfigure}
+    \begin{subfigure}[b]{0.45\linewidth}
+    \includegraphics[width=\linewidth]{images/amp_csp.png}
+    \caption{After CSP}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.45\linewidth}
+    \includegraphics[width=\linewidth]{images/stft.png}
+    \caption{Before CSP}
+  \end{subfigure}
+    \begin{subfigure}[b]{0.45\linewidth}
+    \includegraphics[width=\linewidth]{images/stft_csp.png}
+    \caption{After CSP}
+  \end{subfigure}
+  \caption{Amplitude and STFT of Average of all Trials and all Channels Before and After CSP}
+  \label{fig:amp_stft}
+\end{figure}
 
+I stored the spatial filter $W$ for applying it on the test datas.
 
 
 
