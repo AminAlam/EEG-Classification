@@ -20,7 +20,7 @@ First, I maximized the variance between the classes by using CSP filters. Then, 
 - Phase of the FFT coefficients
 
 ### Finals accuracy
-Final accuracy with 5-fold validation was 81%.
+Final accuracy with 5-fold validation was 87%.
 
 ### Dependencies
 
